@@ -1,9 +1,5 @@
 # 🦀 Rusty-SSL: A Secure, High-Performance HTTPS Server
 
-[![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/yourusername/rusty-ssl)
-
 Rusty-SSL is a secure, high-performance HTTPS server built in Rust that combines modern SSL/TLS capabilities with intelligent connection management. Designed for production environments where security, performance, and reliability are paramount.
 
 ## 🌟 Features
@@ -141,7 +137,7 @@ Rusty-SSL is a secure, high-performance HTTPS server built in Rust that combines
 1. **Clone and Build**
 
    ```bash
-   git clone https://github.com/yourusername/rusty-ssl.git
+   git clone https://github.com/biferdou/rusty-ssl.git
    cd rusty-ssl
    cargo build --release
    ```
