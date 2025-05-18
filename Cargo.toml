@@ -1,0 +1,10 @@
+[package]
+name = "rusty-ssl"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+hyper = "1.6.0"
+rustls = "0.23.27"
+tokio = "1.45.0"
+tokio-rustls = "0.26.2"
