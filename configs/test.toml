@@ -1,0 +1,19 @@
+[server]
+host = "127.0.0.1"
+port = 8443
+max_connections = 100
+request_timeout_secs = 30
+
+[ssl]
+cert_path = "test-certs/cert.pem"
+key_path = "test-certs/key.pem"
+cert_check_interval_secs = 3600
+
+[ttl]
+default_ttl_secs = 60      # Shorter for testing
+max_ttl_secs = 300         # Shorter for testing
+cleanup_interval_secs = 10 # More frequent for testing
+
+[logging]
+level = "debug"
+format = "pretty"

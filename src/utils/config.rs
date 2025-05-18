@@ -49,9 +49,9 @@ impl Default for AppConfig {
                 request_timeout_secs: 30,
             },
             ssl: SslConfig {
-                cert_path: PathBuf::from("/etc/letsencrypt/live/tilas.xyz/fullchain.pem"),
-                key_path: PathBuf::from("/etc/letsencrypt/live/tilas.xyz/privkey.pem"),
-                cert_check_interval_secs: 3600, // Check every hour
+                cert_path: PathBuf::from("test-certs/cert.pem"), // Changed for testing
+                key_path: PathBuf::from("test-certs/key.pem"),   // Changed for testing
+                cert_check_interval_secs: 3600,                  // Check every hour
             },
             ttl: TtlConfig {
                 default_ttl_secs: 300,     // 5 minutes
@@ -68,13 +68,23 @@ impl Default for AppConfig {
 
 impl AppConfig {
     pub fn load() -> Result<Self, config::ConfigError> {
-        let settings = config::Config::builder()
-            .add_source(config::Config::try_from(&AppConfig::default())?)
-            .add_source(config::File::with_name("configs/default").required(false))
-            .add_source(config::File::with_name("configs/production").required(false))
-            .add_source(config::Environment::with_prefix("RUSTY_SSL"))
-            .build()?;
+        let mut builder =
+            config::Config::builder().add_source(config::Config::try_from(&AppConfig::default())?);
 
+        // Check for custom config path from environment
+        if let Ok(config_path) = std::env::var("RUSTY_SSL_CONFIG_PATH") {
+            builder = builder.add_source(config::File::with_name(&config_path).required(true));
+        } else {
+            // Use default config files
+            builder = builder
+                .add_source(config::File::with_name("configs/default").required(false))
+                .add_source(config::File::with_name("configs/production").required(false));
+        }
+
+        // Add environment variables with prefix
+        builder = builder.add_source(config::Environment::with_prefix("RUSTY_SSL"));
+
+        let settings = builder.build()?;
         settings.try_deserialize()
     }
 
