@@ -1,3 +1,4 @@
+use anyhow::Result;
 use http_body_util::Full;
 use hyper::body::Bytes;
 use hyper::{Response, StatusCode};
@@ -26,7 +27,7 @@ impl HealthHandler {
         }
     }
 
-    pub async fn handle_health_check(&self) -> Result<Response<Full<Bytes>>, hyper::Error> {
+    pub async fn handle_health_check(&self) -> Result<Response<Full<Bytes>>> {
         debug!("Health check requested");
 
         let now = SystemTime::now();
@@ -61,13 +62,12 @@ impl HealthHandler {
             .status(StatusCode::OK)
             .header("Content-Type", "application/json")
             .header("Cache-Control", "no-cache")
-            .body(Full::new(Bytes::from(response_body.to_string())))
-            .unwrap();
+            .body(Full::new(Bytes::from(response_body.to_string())))?;
 
         Ok(response)
     }
 
-    pub async fn handle_readiness_check(&self) -> Result<Response<Full<Bytes>>, hyper::Error> {
+    pub async fn handle_readiness_check(&self) -> Result<Response<Full<Bytes>>> {
         debug!("Readiness check requested");
 
         // In a real implementation, you would check:
@@ -92,13 +92,12 @@ impl HealthHandler {
             .status(StatusCode::OK)
             .header("Content-Type", "application/json")
             .header("Cache-Control", "no-cache")
-            .body(Full::new(Bytes::from(response_body.to_string())))
-            .unwrap();
+            .body(Full::new(Bytes::from(response_body.to_string())))?;
 
         Ok(response)
     }
 
-    pub async fn handle_liveness_check(&self) -> Result<Response<Full<Bytes>>, hyper::Error> {
+    pub async fn handle_liveness_check(&self) -> Result<Response<Full<Bytes>>> {
         debug!("Liveness check requested");
 
         // Simple alive check - if this responds, the service is alive
@@ -114,8 +113,7 @@ impl HealthHandler {
             .status(StatusCode::OK)
             .header("Content-Type", "application/json")
             .header("Cache-Control", "no-cache")
-            .body(Full::new(Bytes::from(response_body.to_string())))
-            .unwrap();
+            .body(Full::new(Bytes::from(response_body.to_string())))?;
 
         Ok(response)
     }

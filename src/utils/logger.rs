@@ -1,7 +1,8 @@
 use crate::utils::config::LoggingConfig;
+use anyhow::Result;
 use tracing_subscriber::{filter::EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
-pub fn init_logging(config: &LoggingConfig) -> Result<(), Box<dyn std::error::Error>> {
+pub fn init_logging(config: &LoggingConfig) -> Result<()> {
     let filter =
         EnvFilter::try_from_default_env().or_else(|_| EnvFilter::try_new(&config.level))?;
 

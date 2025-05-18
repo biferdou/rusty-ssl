@@ -23,7 +23,7 @@ async fn main() -> Result<()> {
     info!("Starting Rusty-SSL server v{}", env!("CARGO_PKG_VERSION"));
 
     // Initialize SSL manager
-    let mut ssl_manager = SslManager::new(
+    let ssl_manager = SslManager::new(
         &config.ssl.cert_path,
         &config.ssl.key_path,
         config.cert_check_interval(),

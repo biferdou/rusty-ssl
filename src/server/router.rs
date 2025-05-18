@@ -1,5 +1,6 @@
 use crate::handlers::HealthHandler;
 use crate::server::TtlController;
+use anyhow::Result;
 use http_body_util::Full;
 use hyper::body::{Bytes, Incoming};
 use hyper::{Method, Request, Response, StatusCode};
@@ -25,7 +26,7 @@ impl Router {
         &self,
         req: Request<Incoming>,
         client_ip: IpAddr,
-    ) -> Result<Response<Full<Bytes>>, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> Result<Response<Full<Bytes>>> {
         // Register/update connection in TTL controller
         {
             let mut ttl_controller = self.ttl_controller.lock().await;
@@ -65,7 +66,7 @@ impl Router {
         Ok(response)
     }
 
-    async fn handle_root(&self) -> Result<Response<Full<Bytes>>, hyper::Error> {
+    async fn handle_root(&self) -> Result<Response<Full<Bytes>>> {
         debug!("Root endpoint requested");
 
         let html_content = r#"
@@ -163,13 +164,12 @@ impl Router {
             .status(StatusCode::OK)
             .header("Content-Type", "text/html; charset=utf-8")
             .header("Cache-Control", "public, max-age=300")
-            .body(Full::new(Bytes::from(html_content)))
-            .unwrap();
+            .body(Full::new(Bytes::from(html_content)))?;
 
         Ok(response)
     }
 
-    async fn handle_ssl_status(&self) -> Result<Response<Full<Bytes>>, hyper::Error> {
+    async fn handle_ssl_status(&self) -> Result<Response<Full<Bytes>>> {
         debug!("SSL status endpoint requested");
 
         // In a real implementation, you would get this from the SSL manager
@@ -191,13 +191,12 @@ impl Router {
             .status(StatusCode::OK)
             .header("Content-Type", "application/json")
             .header("Cache-Control", "no-cache")
-            .body(Full::new(Bytes::from(ssl_status.to_string())))
-            .unwrap();
+            .body(Full::new(Bytes::from(ssl_status.to_string())))?;
 
         Ok(response)
     }
 
-    async fn handle_metrics(&self) -> Result<Response<Full<Bytes>>, hyper::Error> {
+    async fn handle_metrics(&self) -> Result<Response<Full<Bytes>>> {
         debug!("Metrics endpoint requested");
 
         let ttl_stats = {
@@ -244,13 +243,12 @@ impl Router {
             .status(StatusCode::OK)
             .header("Content-Type", "application/json")
             .header("Cache-Control", "no-cache")
-            .body(Full::new(Bytes::from(metrics.to_string())))
-            .unwrap();
+            .body(Full::new(Bytes::from(metrics.to_string())))?;
 
         Ok(response)
     }
 
-    async fn handle_not_found(&self, path: &str) -> Result<Response<Full<Bytes>>, hyper::Error> {
+    async fn handle_not_found(&self, path: &str) -> Result<Response<Full<Bytes>>> {
         warn!("404 Not Found: {}", path);
 
         let error_response = serde_json::json!({
@@ -266,8 +264,7 @@ impl Router {
         let response = Response::builder()
             .status(StatusCode::NOT_FOUND)
             .header("Content-Type", "application/json")
-            .body(Full::new(Bytes::from(error_response.to_string())))
-            .unwrap();
+            .body(Full::new(Bytes::from(error_response.to_string())))?;
 
         Ok(response)
     }
