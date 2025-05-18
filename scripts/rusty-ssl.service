@@ -1,0 +1,29 @@
+[Unit]
+Description=Rusty-SSL Secure HTTP Server
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=rusty-ssl
+WorkingDirectory=/opt/rusty-ssl
+Environment=RUSTY_SSL_SERVER__PORT=443
+Environment=RUSTY_SSL_LOGGING__LEVEL=info
+Environment=RUSTY_SSL_LOGGING__FORMAT=json
+ExecStart=/opt/rusty-ssl/target/release/rusty-ssl
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/log/rusty-ssl
+
+# Required for binding to port 443
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
