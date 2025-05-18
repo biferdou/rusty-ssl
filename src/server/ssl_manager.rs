@@ -1,10 +1,11 @@
-use rustls::{Certificate, PrivateKey, ServerConfig};
-use rustls_pemfile::{certs, pkcs8_private_keys};
+use rustls::ServerConfig;
+use rustls::pki_types::{CertificateDer, PrivateKeyDer};
+use rustls_pemfile::{certs, private_key};
 use std::fs::File;
 use std::io::{self, BufReader};
 use std::path::Path;
 use std::sync::Arc;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime};
 use thiserror::Error;
 use tokio::time::{Interval, interval};
 use tracing::{error, info, warn};
@@ -61,14 +62,14 @@ impl SslManager {
 
         info!(
             "SSL certificates loaded successfully. Expires: {:?}",
-            cert_info.as_ref().map(|info| info.not_after)
+            cert_info.not_after
         );
 
         Ok(Self {
             config: Arc::new(config),
             cert_path,
             key_path,
-            cert_info,
+            cert_info: Some(cert_info),
             check_interval: interval(check_interval),
         })
     }
@@ -79,10 +80,8 @@ impl SslManager {
             cert_path: cert_path.display().to_string(),
         })?;
         let mut cert_reader = BufReader::new(cert_file);
-        let cert_chain: Vec<Certificate> = certs(&mut cert_reader)?
-            .into_iter()
-            .map(Certificate)
-            .collect();
+        let cert_chain: Vec<CertificateDer> =
+            certs(&mut cert_reader).collect::<Result<Vec<_>, _>>()?;
 
         if cert_chain.is_empty() {
             return Err(SslError::NoCertificatesFound);
@@ -93,20 +92,13 @@ impl SslManager {
             key_path: key_path.display().to_string(),
         })?;
         let mut key_reader = BufReader::new(key_file);
-        let mut keys: Vec<PrivateKey> = pkcs8_private_keys(&mut key_reader)?
-            .into_iter()
-            .map(PrivateKey)
-            .collect();
+        let private_key: PrivateKeyDer =
+            private_key(&mut key_reader)?.ok_or(SslError::NoPrivateKeysFound)?;
 
-        if keys.is_empty() {
-            return Err(SslError::NoPrivateKeysFound);
-        }
-
-        // Configure TLS
+        // Configure TLS with modern defaults
         let config = ServerConfig::builder()
-            .with_safe_defaults()
             .with_no_client_auth()
-            .with_single_cert(cert_chain, keys.remove(0))?;
+            .with_single_cert(cert_chain, private_key)?;
 
         Ok(config)
     }

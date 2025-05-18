@@ -86,7 +86,7 @@ impl TtlController {
         // Calculate adaptive TTL based on existing connection patterns
         let ttl = self.calculate_adaptive_ttl(ip);
 
-        let mut connection = ConnectionInfo::new(ip, ttl);
+        let connection = ConnectionInfo::new(ip, ttl);
         let connection_id = connection.id;
 
         // Update existing connection or insert new one

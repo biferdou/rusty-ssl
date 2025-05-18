@@ -36,7 +36,7 @@ pub struct TtlConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoggingConfig {
     pub level: String,
-    pub format: String,
+    pub format: String, // "json" or "pretty"
 }
 
 impl Default for AppConfig {
@@ -68,7 +68,7 @@ impl Default for AppConfig {
 
 impl AppConfig {
     pub fn load() -> Result<Self, config::ConfigError> {
-        let mut settings = config::Config::builder()
+        let settings = config::Config::builder()
             .add_source(config::Config::try_from(&AppConfig::default())?)
             .add_source(config::File::with_name("configs/default").required(false))
             .add_source(config::File::with_name("configs/production").required(false))
