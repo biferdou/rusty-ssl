@@ -1,0 +1,16 @@
+[server]
+port = 443  # Standard HTTPS port
+max_connections = 5000
+request_timeout_secs = 60
+
+[ssl]
+cert_check_interval_secs = 1800  # Check every 30 minutes in production
+
+[ttl]
+default_ttl_secs = 600      # 10 minutes in production
+max_ttl_secs = 7200         # 2 hours max
+cleanup_interval_secs = 30  # More frequent cleanup
+
+[logging]
+level = "warn"
+format = "json"  # Structured logging for production
